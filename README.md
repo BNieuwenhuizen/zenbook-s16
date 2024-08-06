@@ -6,6 +6,11 @@ I have a new Zenbook S 16 (UM5606WA) with a Ryzen HX AI 370, and since the exper
 
 Archlinux with kernel 6.10.2, systemd-boot for the bootloader.
 
+
+Note: Kernel 6.11-rc2 seems to break hibernate for me. Need to bisect.
+
+Note:  Updating to linux-firmware-git freezes the display for me at random times, though ssh still seems to work. Need to escalate to AMD.
+
 ## No Bluetooth
 
 Need https://patchwork.kernel.org/project/bluetooth/patch/20240804195319.3499920-1-bas@basnieuwenhuizen.nl/ to detect the device correctly.
@@ -112,3 +117,8 @@ Next steps: probe EC?
 
 There is an ec-probe utility in https://github.com/hirschmann/nbfc but it only dumps zeroes for me ...
 
+
+
+## Standby Battery Duration
+
+Had my laptop suspend for 8 hours now and the battery went from 96% to 86%, suggesting ~30% battery per day which isn't great. That said, I bet the keyboard backlight still being on in standby isn't helping.
