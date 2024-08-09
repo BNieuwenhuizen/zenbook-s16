@@ -152,4 +152,4 @@ Standby power usage seems to be about 30% per day, or 1.0-1.1 W. Note that thing
 
 ## Idle battery usage
 
-A Windows review had idle power usage around `5` Watt (https://www.ultrabookreview.com/68996-asus-zenbook-s16-review/#battery-life-8211-excellent-runtimes-with-hawk-point), however on Linux the lowest I've seen is `6.8` and that includes setting the display to 60 Hz and 1% brightness in KDE, which they haven't don't as part of these numbers.
+A Windows review had idle power usage around `5` Watt (https://www.ultrabookreview.com/68996-asus-zenbook-s16-review/#battery-life-8211-excellent-runtimes-with-hawk-point), however on Linux the lowest I've seen is `6.8` and that includes setting the display to 60 Hz and 1% brightness in KDE, which Ultrabookreview haven't done as part of these numbers.
