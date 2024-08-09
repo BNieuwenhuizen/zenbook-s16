@@ -13,20 +13,47 @@ Note:  Updating to linux-firmware-git freezes the display for me at random times
 
 ## No Bluetooth
 
-Need https://patchwork.kernel.org/project/bluetooth/patch/20240804195319.3499920-1-bas@basnieuwenhuizen.nl/ to detect the device correctly.
+Need https://patchwork.kernel.org/project/bluetooth/patch/53ccc7377341b64ff3fbdde3df28cbd14f245340.camel@nuclearsunshine.com/ to detect the device correctly.
 
-## Hang on shutdown
+## Hangs with PSR
 
-I've had two hangs on shutdown, though it ain't consistent. Need to see if I can get some dmesg from this time.
+Having PSR (Panel Self Refresh) enabled can cause hangs at this point. This is a power saving feature that should help on idle. To disable it, boot the kernel with the parameter `amdgpu.dcdebugmask=0x600`.
 
-## Hang on writing initramfs to /boot
+How to do this depends on your distro & bootloader. If you use systemd-boot, just add it in `/boot/loader/entries/*.conf`.
 
-Yes ... I have no clue why, but this happened multiple times, and always when updating the initramfs. 
+## Audio is low/tinny.
 
-Note that the EFI partition is only 256 MiB and I opted to not create a new one, so with 2 kernels (disabled the fallback initramfs to make space) it is quite full, hovering around 220 of 256 MB.
+It seems by default only the tweeters get used and not the subwoofer, as those get detected as front and rear channels respectively. To fix create a file `/etc/pipewire/pipewire-pulse.conf.d/99-speaker-routing.conf` with the following content:
 
-Currently reworking things to put the kernel/initramfs on a XBOOTLDR partition, will see if fastboot works with that.
+```
+# Pipewire thinks tweeters are 4.0 fronts and woofers are 4.0 rears; upmix.
+context.modules = [
+    {   name = libpipewire-module-loopback
+        args = {
+            node.description = "Stereo to 4.0 upmix"
+            audio.position = [ FL FR ]
+            capture.props = {
+                node.name = "sink.upmix_4_0"
+                media.class = "Audio/Sink"
+            }
+            playback.props = {
+                node.name = "playback.upmix-4.0"
+                audio.position = [ FL FR RL RR]
+                target.object = "alsa_output.pci-0000_c4_00.6.analog-surround-40"
+                stream.dont-remix = true
+                node.passive = true
+                channelmix.upmix = true
+                channelmix.upmix-method = simple
+            }
+        }
+    }
+]
+```
 
+Then in pavucontrol or pwvucontrol:
+
+1. Set the default output (or the output of your application) to `Stereo to 4.0 upmix`.
+2. In Configuration(pavucontrol)/Cards(pwvucontrol) set `Family 17h/19h HD Audio Controller` to `Analog Surround 4.0 Output + Analog Stereo Input`.
 
 ## Keyboard backlight keeps fading in/out
 
@@ -121,4 +148,8 @@ There is an ec-probe utility in https://github.com/hirschmann/nbfc but it only d
 
 ## Standby Battery Duration
 
-Had my laptop suspend for 8 hours now and the battery went from 96% to 86%, suggesting ~30% battery per day which isn't great. That said, I bet the keyboard backlight still being on in standby isn't helping.
+Standby power usage seems to be about 30% per day, or 1.0-1.1 W. Note that things like the keyboard backlight keep working in standby, so hopefully there are some ways to improve this still.
+
+## Idle battery usage
+
+A Windows review had idle power usage around `5` Watt (https://www.ultrabookreview.com/68996-asus-zenbook-s16-review/#battery-life-8211-excellent-runtimes-with-hawk-point), however on Linux the lowest I've seen is `6.8` and that includes setting the display to 60 Hz and 1% brightness in KDE, which they haven't don't as part of these numbers.
